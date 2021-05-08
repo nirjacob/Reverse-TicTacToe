@@ -8,9 +8,27 @@ namespace Reverse_TicTacToe
 {
     class player
     {
+        /////Data Members/////
         int m_Winning;
         char m_PlayerSymbol;
-        bool v_IsHuman = true;
+        bool v_IsHuman;
+
+        /////Constructor/////
+        public player(int i_playerNumber)
+        {
+            m_Winning = 0;
+            if(i_playerNumber == 1)
+            {
+                m_PlayerSymbol = 'O';
+            }
+            if(i_playerNumber == 2)
+            {
+                m_PlayerSymbol = 'X';
+            }
+            v_IsHuman = true;
+        }
+
+        /////Getter & Setters/////
         public int Winning
         {
             get
