@@ -127,6 +127,7 @@ namespace Reverse_TicTacToe
 
         public LocationOnBoard AiTurn()
         {
+            Console.WriteLine("Calculating AI best move... please wait.");
             int rowIndex = -1, colIndex = -1;
             LocationOnBoard move = new LocationOnBoard();
             ticTacToeLogic.CalculateAiTurn(ref rowIndex, ref colIndex);

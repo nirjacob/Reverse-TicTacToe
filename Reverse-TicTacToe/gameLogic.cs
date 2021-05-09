@@ -289,7 +289,7 @@ namespace Reverse_TicTacToe
                 {
                     for (int colIndex = 0; colIndex < BoardSize; colIndex++)
                     {
-                        if(GameMatrix[rowIndex, colIndex] == ' ')
+                        if(GameMatrix[rowIndex, colIndex] == ' ' && i_Depth < setMaxDepth())
                         {
                             GameMatrix[rowIndex, colIndex] = 'X';
                             AIbestMoveValue = Math.Max(AIbestMoveValue, EvaluateAiMove(i_Depth + 1, !i_IsAiTurn));
@@ -306,15 +306,27 @@ namespace Reverse_TicTacToe
                 {
                     for (int colIndex = 0; colIndex < BoardSize; colIndex++)
                     {
-                        if (GameMatrix[rowIndex, colIndex] == ' ')
+                        if (GameMatrix[rowIndex, colIndex] == ' ' && i_Depth < setMaxDepth())
                         {
                             GameMatrix[rowIndex, colIndex] = 'O';
-                            humanBestMoveValue = Math.Max(humanBestMoveValue, EvaluateAiMove(i_Depth + 1, !i_IsAiTurn));
+                            humanBestMoveValue = Math.Min(humanBestMoveValue, EvaluateAiMove(i_Depth + 1, !i_IsAiTurn));
                             GameMatrix[rowIndex, colIndex] = ' ';
                         }
                     }
                 }
                 return humanBestMoveValue;
+            }
+        }
+        public int setMaxDepth()
+        {
+            switch (BoardSize)
+            {
+                case 3:
+                    return Int32.MaxValue;
+                case 4:
+                    return 4;
+                default:
+                    return 2;
             }
         }
         public int EvaluateBoard()
@@ -355,7 +367,6 @@ namespace Reverse_TicTacToe
                 }
             }
             return 0;
-
         }
 
     }
