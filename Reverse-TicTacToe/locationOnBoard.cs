@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-namespace Reverse_TicTacToe
+﻿namespace Reverse_TicTacToe
 {
-    class locationOnBoard
+    class LocationOnBoard
     {
         /////Data Members/////
-        int m_X;
-        int m_Y;
-        char m_Symbol;
+        private int m_X;
+        private int m_Y;
+        private char m_Symbol;
         
         /////Getter & Setters/////
         public int row

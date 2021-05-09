@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using Ex02.ConsoleUtils;
 
 namespace Reverse_TicTacToe
@@ -12,12 +10,16 @@ namespace Reverse_TicTacToe
         Player1Turn = 1,
         Player2Turn = 2
     }
-    class gameBoard
+    class GameBoard
     {
         /////Data Members/////
-        gameLogic ticTacToeLogic;
-        ePlayerIdentifier m_PlayerTurn;
-        
+        private GameLogic ticTacToeLogic;
+        private ePlayerIdentifier m_PlayerTurn;
+        /////Constructor/////
+        public GameBoard()
+        {
+            PlayerTurn = ePlayerIdentifier.Player1Turn;
+        }
         /////Getter & Setters/////
         public ePlayerIdentifier PlayerTurn
         {
@@ -30,20 +32,30 @@ namespace Reverse_TicTacToe
                 m_PlayerTurn = value;
             }
         }
-        public char getSymbol()
+        public int GetCurrentPlayer()
         {
             if (PlayerTurn == ePlayerIdentifier.Player1Turn)
             {
-                return 'X';
+                return 1;
             }
             else
             {
-                return 'O';
+                return 2;
             }
         }
-
+        public char GetSymbol()
+        {
+            if (PlayerTurn == ePlayerIdentifier.Player1Turn)
+            {
+                return 'O';
+            }
+            else
+            {
+                return 'X';
+            }
+        }
         /////Class Methods/////
-        public void printBoard()
+        public void PrintBoard()
         {
             Screen.Clear();
             //Print first row of number.
@@ -59,7 +71,7 @@ namespace Reverse_TicTacToe
                 Console.Write("{0}|", rowNum + 1);
                 for (int colNum = 0; colNum < ticTacToeLogic.BoardSize; colNum++)
                 { 
-                    Console.Write(" {0} |", ticTacToeLogic.getCell(rowNum, colNum));
+                    Console.Write(" {0} |", ticTacToeLogic.GetCell(rowNum, colNum));
                 }
                 Console.WriteLine();
                 Console.Write(" ");
@@ -70,7 +82,7 @@ namespace Reverse_TicTacToe
                 Console.WriteLine();
             }
         }
-        public void switchPlayers()
+        public void SwitchPlayers()
         {
             if(PlayerTurn == ePlayerIdentifier.Player1Turn)
             {
@@ -81,49 +93,57 @@ namespace Reverse_TicTacToe
                 PlayerTurn = ePlayerIdentifier.Player1Turn;
             }
         }
-        public void takeTurn()
+        public void TakeTurn()
         {
-            locationOnBoard move;
-            if (PlayerTurn == ePlayerIdentifier.Player2Turn && ticTacToeLogic.vsAI())
+            LocationOnBoard move;
+            if (PlayerTurn == ePlayerIdentifier.Player2Turn && ticTacToeLogic.VsAI())
             {
-                move = pcTurn();
+                move = AiTurn();
             }
             else
             {
-                move = humanTurn();
+                move = HumanTurn();
             }
-            ticTacToeLogic.updateLogicAfterTurn(move);
-            switchPlayers();
+            ticTacToeLogic.UpdateLogicAfterTurn(move);
+            SwitchPlayers();
         }
-        public locationOnBoard humanTurn()
+        public LocationOnBoard HumanTurn()
         {
             string input;
             int rowInput = 0, colInput = 0;
-            Console.WriteLine("Please enter a move: \n");
+            Console.Write("Player {0} Turn. {2}Please choose row,col to place the symbol '{1}'{2}", GetCurrentPlayer(), GetSymbol(),"\n");
             input = Console.ReadLine();
-            while (inputValidity(input) == false)
+            while (InputValidity(input) == false)
             {
                 input = Console.ReadLine();
             }
-            obtainMoveValues(input, ref rowInput, ref colInput);
-            locationOnBoard move = new locationOnBoard();
+            ObtainMoveValues(input, ref rowInput, ref colInput);
+            LocationOnBoard move = new LocationOnBoard();
             move.row = rowInput - 1;//The matrix is zero based.
             move.col = colInput - 1;//The matrix is zero based.
-            move.symbol = getSymbol();
+            move.symbol = GetSymbol();
             return move;
         }
 
-        public locationOnBoard pcTurn()
+        public LocationOnBoard AiTurn()
         {
-            //Generate random.
-            return new locationOnBoard();
+            int rowIndex = -1, colIndex = -1;
+            LocationOnBoard move = new LocationOnBoard();
+            ticTacToeLogic.CalculateAiTurn(ref rowIndex, ref colIndex);
+            if(rowIndex != -1 && colIndex != -1)
+            {
+                move.row = rowIndex;
+                move.col = colIndex;
+                move.symbol = 'X';
+            }
+            return move;
         }
-        public bool inputValidity(string i_Input)
+        public bool InputValidity(string i_Input)
         {
             if ((i_Input.Contains('q') || i_Input.Contains('Q')) && i_Input.Length==1)
             {
-                Console.WriteLine("Player {0} has quited the game.", PlayerTurn);
-                replay();
+                Console.WriteLine("Player {0} has quited the game.", (int)PlayerTurn);
+                Replay();
                 return false;
             }
             if (i_Input.Contains(',') == false)
@@ -139,16 +159,16 @@ namespace Reverse_TicTacToe
             {
                 if (int.TryParse(i_SecondNumber, out i_CheckCol) == true)
                 {
-                    return checkBoardValidity(i_CheckRow - 1, i_CheckCol - 1);
+                    return CheckBoardValidity(i_CheckRow - 1, i_CheckCol - 1);
                 }
             }
             return false;
         }
-        public bool checkBoardValidity(int i_CheckRow,int i_CheckCol)
+        public bool CheckBoardValidity(int i_CheckRow,int i_CheckCol)
         {
-            if (i_CheckRow < ticTacToeLogic.BoardSize && i_CheckCol < ticTacToeLogic.BoardSize && i_CheckCol > 0 && i_CheckRow > 0)
+            if (i_CheckRow < ticTacToeLogic.BoardSize && i_CheckCol < ticTacToeLogic.BoardSize)
             {
-                if(ticTacToeLogic.getCell(i_CheckRow, i_CheckCol) == ' ')
+                if(ticTacToeLogic.GetCell(i_CheckRow, i_CheckCol) == ' ')
                 {
                     return true;
                 }
@@ -161,7 +181,7 @@ namespace Reverse_TicTacToe
             Console.WriteLine($"Error - invalid input, cell is already taken {Environment.NewLine}");
             return false;
         }
-        public void obtainMoveValues(string i_Input, ref int io_row, ref int io_col)
+        public void ObtainMoveValues(string i_Input, ref int io_row, ref int io_col)
         {
             int commaIndex = i_Input.IndexOf(',');
             string rowStr = i_Input.Substring(0, commaIndex);
@@ -169,26 +189,26 @@ namespace Reverse_TicTacToe
             io_row = Int32.Parse(rowStr);
             io_col = Int32.Parse(colStr);
          }
-        public void setUpGameLogic()
+        public void SetUpGameLogic()
         {
             int boardSizeUserInput = 0, numOfHumanPlayersUserInput = 0;
             Console.WriteLine("Please enter the board size: ");
             string input = Console.ReadLine();
-            while (validMatrixSizeInput(input) != true)
+            while (ValidMatrixSizeInput(input) != true)
             {
                 input = Console.ReadLine();
             }
             boardSizeUserInput = int.Parse(input);
             Console.WriteLine("Please enter the number of human players: ");
             input = Console.ReadLine();
-            while (validNumOfPlayersInput(input) != true)
+            while (ValidNumOfPlayersInput(input) != true)
             {
                 input = Console.ReadLine();
             }
             numOfHumanPlayersUserInput = int.Parse(input);
-            ticTacToeLogic = new gameLogic(boardSizeUserInput, numOfHumanPlayersUserInput);
+            ticTacToeLogic = new GameLogic(boardSizeUserInput, numOfHumanPlayersUserInput);
         }
-        public bool validMatrixSizeInput(string i_Input)
+        public bool ValidMatrixSizeInput(string i_Input)
         {
             if (i_Input.All(char.IsDigit) == true)
             {
@@ -208,7 +228,7 @@ namespace Reverse_TicTacToe
                 return false;
             }
         }
-        public bool validNumOfPlayersInput(string i_Input)
+        public bool ValidNumOfPlayersInput(string i_Input)
         {
             if (i_Input.All(char.IsDigit) == true)
             {
@@ -228,180 +248,55 @@ namespace Reverse_TicTacToe
                 return false;
             }
         }
-        public void run()
+        public void Replay()
         {
-            setUpGameLogic();
-            printBoard();
-            takeTurn();//ask for first move
-            bool endGame = false;
-            while (endGame == false)
-            {
-                if (checkWinner())
-                {
-                    //update score
-                    replay(); //offer to play again
-                }
-                if (checkDraw())
-                {
-                    Console.WriteLine("Draw!");
-                    replay();
-                }
-                printBoard();
-                takeTurn();
-            }
-        }
-        public bool checkWinner()
-        {
-            int numOfPlayerWon = 0;
-            bool verticalWin = checkVertical(ref numOfPlayerWon);
-            bool HorizontalWin = checkHorizontal(ref numOfPlayerWon);
-            bool DiagonalWin = checkDiagonal(ref numOfPlayerWon);
-            if(DiagonalWin == true || HorizontalWin == true|| verticalWin == true)
-            {
-                ticTacToeLogic.addScoreToPlayer(numOfPlayerWon);
-                return true;
-            }
-            return false;
-        }
-        public bool checkVertical(ref int io_numOfPlayerWon)
-        {
-            int playerOneCounter = 0, playerTwoCounter = 0;
-            for (int rowIndex = 0; rowIndex < ticTacToeLogic.BoardSize; rowIndex++)
-            {
-                for (int colIndex = 0; colIndex < ticTacToeLogic.BoardSize; colIndex++)
-                {
-                    if(ticTacToeLogic.GameMatrix[rowIndex, colIndex] == 'O')
-                    {
-                        playerOneCounter++;
-                    }
-                    if(ticTacToeLogic.GameMatrix[rowIndex, colIndex] == 'X')
-                    {
-                        playerTwoCounter++;
-                    }
-                }
-                if(playerOneCounter == ticTacToeLogic.BoardSize || playerTwoCounter == ticTacToeLogic.BoardSize)
-                {
-                    io_numOfPlayerWon = winnerNumber(playerOneCounter, playerTwoCounter);
-                    return true;
-                }
-            }
-            return false;
-        }
-        public bool checkHorizontal(ref int io_numOfPlayerWon)
-        {
-            int playerOneCounter = 0, playerTwoCounter = 0;
-            for (int rowIndex = 0; rowIndex < ticTacToeLogic.BoardSize; rowIndex++)
-            {
-                for (int colIndex = 0; colIndex < ticTacToeLogic.BoardSize; colIndex++)
-                {
-                    if (ticTacToeLogic.GameMatrix[colIndex, rowIndex] == 'O')
-                    {
-                        playerOneCounter++;
-                    }
-                    if (ticTacToeLogic.GameMatrix[colIndex, rowIndex] == 'X')
-                    {
-                        playerTwoCounter++;
-                    }
-                }
-                if (playerOneCounter == ticTacToeLogic.BoardSize || playerTwoCounter == ticTacToeLogic.BoardSize)
-                {
-                    io_numOfPlayerWon = winnerNumber(playerOneCounter, playerTwoCounter);
-                    return true;
-                }
-            }
-            return false;
-        }
-        public bool checkDiagonal(ref int io_numOfPlayerWon)
-        {
-            int playerOneCounter = 0, playerTwoCounter = 0;
-            for (int i = 0; i < ticTacToeLogic.BoardSize; i++)
-            {
-                if (ticTacToeLogic.GameMatrix[i, i] == 'O')
-                {
-                    playerOneCounter++;
-                }
-                if (ticTacToeLogic.GameMatrix[i, i] == 'X')
-                {
-                    playerTwoCounter++;
-                }
-                if (playerOneCounter == ticTacToeLogic.BoardSize || playerTwoCounter == ticTacToeLogic.BoardSize)
-                {
-                    io_numOfPlayerWon = winnerNumber(playerOneCounter, playerTwoCounter);
-                    return true;
-                }
-            }
-            playerOneCounter = 0;
-            playerTwoCounter = 0;
-            int col  = ticTacToeLogic.BoardSize-1;
-            for (int i = 0; i < ticTacToeLogic.BoardSize; i++)
-            {
-                if(ticTacToeLogic.GameMatrix[i, col] == 'O')
-                {
-                    playerOneCounter++;
-                }
-                if (ticTacToeLogic.GameMatrix[i, col] == 'Y')
-                {
-                    playerTwoCounter++;
-                }
-
-                col--;
-            }
-            if (playerOneCounter == ticTacToeLogic.BoardSize || playerTwoCounter == ticTacToeLogic.BoardSize)
-            {
-                io_numOfPlayerWon = winnerNumber(playerOneCounter, playerTwoCounter);
-                return true;
-            }
-            return false;
-        }
-        public int winnerNumber(int i_playerOne, int i_playerTwo)
-        {
-            if(i_playerOne == ticTacToeLogic.BoardSize)
-            {
-                return 1;
-            }
-            else
-            {
-                return 2;
-            }
-        }
-        public bool checkDraw()
-        {
-            for (int rowIndex = 0; rowIndex < ticTacToeLogic.BoardSize; rowIndex++)
-            {
-                for (int colIndex = 0; colIndex < ticTacToeLogic.BoardSize; colIndex++)
-                {
-                    if (ticTacToeLogic.GameMatrix[colIndex, rowIndex] != ' ')
-                    {
-                        return false;
-                    }
-                   
-                }
-            }
-            return true;
-        }
-        public void replay()
-        {
+            Console.WriteLine("Score: [Player1] {0}:{1} [Player2]", ticTacToeLogic.GetPlayerScore(1), ticTacToeLogic.GetPlayerScore(2));
             Console.WriteLine("Would you like to play another round? yes/no");
             string input = Console.ReadLine();
             input = input.Trim();
             if (String.Compare(input, "yes") == 0)
             {
-                ticTacToeLogic.makeEmptyMatrix();
-                printBoard();
+                ticTacToeLogic.MakeEmptyMatrix();
+                PrintBoard();
                 PlayerTurn = ePlayerIdentifier.Player1Turn;
             }
-            else if(String.Compare(input, "no") == 0)
+            else if (String.Compare(input, "no") == 0)
             {
                 Console.WriteLine("Goodbye");
+                Thread.Sleep(1500);
                 Environment.Exit(1);
             }
             else
             {
-                replay();
+                Screen.Clear();
+                Console.WriteLine("Please enter a valid input. (yes/no)");
+                Replay();
             }
         }
-
-
-
+        public void Run()
+        {
+            SetUpGameLogic();
+            PrintBoard();
+            TakeTurn();//ask for first move
+            bool gameRunning = true;
+            int winningPlayerNum = 0;
+            while (gameRunning)
+            {
+                if (ticTacToeLogic.CheckWinner(ref winningPlayerNum))
+                {
+                    PrintBoard();
+                    Console.WriteLine("Player {0} Won!", winningPlayerNum);
+                    Replay(); //offer to play again
+                }
+                else if (ticTacToeLogic.CheckDraw())
+                {
+                    PrintBoard();
+                    Console.WriteLine("Draw!");
+                    Replay();
+                }
+                PrintBoard();
+                TakeTurn();
+            }
+        }
     }
 }

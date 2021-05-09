@@ -1,0 +1,2 @@
+C:\Users\Nir\Desktop\C#\Reverse-TicTacToe\Reverse-TicTacToe\obj\Debug\Reverse-TicTacToe.csprojAssemblyReference.cache
+C:\Users\Nir\Desktop\C#\Reverse-TicTacToe\Reverse-TicTacToe\obj\Debug\Reverse-TicTacToe.csproj.CoreCompileInputs.cache

@@ -1,26 +1,16 @@
-﻿namespace Reverse_TicTacToe
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Reverse_TicTacToe
 {
-    class Player
+    class player
     {
-        /////Data Members/////
-        private int m_Winning;
-        private char m_PlayerSymbol;
-        private bool v_IsHuman;
-        /////Constructor/////
-        public Player(int i_playerNumber)
-        {
-            m_Winning = 0;
-            if (i_playerNumber == 1)
-            {
-                m_PlayerSymbol = 'O';
-            }
-            if (i_playerNumber == 2)
-            {
-                m_PlayerSymbol = 'X';
-            }
-            v_IsHuman = true;
-        }
-        /////Getter & Setters/////
+        int m_Winning;
+        char m_PlayerSymbol;
+        bool v_IsHuman = true;
         public int Winning
         {
             get
@@ -32,6 +22,7 @@
                 m_Winning = value;
             }
         }
+
         public char PlayerSymbol
         {
             get
@@ -56,4 +47,5 @@
             }
         }
     }
+
 }

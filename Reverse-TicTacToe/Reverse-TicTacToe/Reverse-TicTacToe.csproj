@@ -8,11 +8,10 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Reverse_TicTacToe</RootNamespace>
     <AssemblyName>Reverse-TicTacToe</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -37,9 +36,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GameBoard.cs" />
-    <Compile Include="GameLogic.cs" />
-    <Compile Include="LocationOnBoard.cs" />
+    <Compile Include="board.cs" />
+    <Compile Include="gameLogic.cs" />
+    <Compile Include="inputHandler.cs" />
+    <Compile Include="locationOnBoard.cs" />
     <Compile Include="player.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>
